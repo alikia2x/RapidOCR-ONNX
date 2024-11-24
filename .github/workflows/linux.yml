@@ -37,7 +37,7 @@ jobs:
       # 部署musl
       - name: deploy musl
         run: |
-          wget https://github.com/benjaminwan/musl-cross-builder/releases/download/${{ env.TOOLCHAIN_VERSION }}/${{ matrix.arch_type }}.${{ env.TOOLCHAIN_VERSION }}.7z -O ${{ matrix.arch_type }}.7z
+          wget https://github.com/benjaminwan/musl-cross-builder/releases/download/${{ env.TOOLCHAIN_VERSION }}/${{ matrix.arch_type }}-${{ env.TOOLCHAIN_VERSION }}.7z -O ${{ matrix.arch_type }}.7z
           7z x ${{ matrix.arch_type }}.7z -aoa
           mv ${{ matrix.arch_type }}/ /opt/${{ matrix.arch_type }}/
 
