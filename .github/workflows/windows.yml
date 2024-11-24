@@ -25,7 +25,6 @@ jobs:
       CV_VERSION: 4.8.1
       CV_PKG_NAME: opencv-4.8.1-windows-${{ matrix.list.vs_name }}-mt
       BIN_PKG_NAME: windows-bin-${{ matrix.list.vs_name }}-mt
-      JNI_PKG_NAME: windows-jni-${{ matrix.list.vs_name }}-mt
       CLIB_PKG_NAME: windows-clib-${{ matrix.list.vs_name }}-mt
 
     steps:
@@ -62,11 +61,6 @@ jobs:
           mv win-BIN-CPU-Win32/install/bin ${{ env.BIN_PKG_NAME }}/win-BIN-CPU-Win32
           cp others/README-bin.txt ${{ env.BIN_PKG_NAME }}/README.txt
           7z a ${{ env.BIN_PKG_NAME }}.7z ${{ env.BIN_PKG_NAME }}
-          mkdir ${{ env.JNI_PKG_NAME }}
-          mv win-JNI-CPU-x64/install ${{ env.JNI_PKG_NAME }}/win-JNI-CPU-x64
-          mv win-JNI-CPU-Win32/install ${{ env.JNI_PKG_NAME }}/win-JNI-CPU-Win32
-          cp others/README-jni.txt ${{ env.JNI_PKG_NAME }}/README.txt
-          7z a ${{ env.JNI_PKG_NAME }}.7z ${{ env.JNI_PKG_NAME }}
           mkdir ${{ env.CLIB_PKG_NAME }}
           mv win-CLIB-CPU-x64/install ${{ env.CLIB_PKG_NAME }}/win-CLIB-CPU-x64
           mv win-CLIB-CPU-Win32/install ${{ env.CLIB_PKG_NAME }}/win-CLIB-CPU-Win32
@@ -79,12 +73,6 @@ jobs:
         with:
           name: ${{ env.BIN_PKG_NAME }}
           path: ${{ env.BIN_PKG_NAME }}.7z
-
-      - name: upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.JNI_PKG_NAME }}
-          path: ${{ env.JNI_PKG_NAME }}.7z
 
       - name: upload
         uses: actions/upload-artifact@v3
@@ -115,13 +103,7 @@ jobs:
           log=$(git log $previousTag..$lastTag --pretty=format:'- %cd %an: %s\n' --date=format:'%Y-%m-%d %H:%M:%S')
           echo "$log"
           echo "log_state="$log"" >> $GITHUB_ENV
-
-      # 创建Changelog文件 triggered by git tag push
-      - name: Generate Changelog
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo -e '${{ env.log_state }}' > release.md
-
+          
       # 下载artifact
       - name: download
         uses: actions/download-artifact@v3
