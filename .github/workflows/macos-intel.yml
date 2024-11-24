@@ -1,0 +1,68 @@
+name: macos
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  macos:
+    runs-on: macos-13
+
+    env:
+      RELEASE_VERSION: 1.0.0
+      ASSETS_VERSION: 1.0.0
+      ONNX_VERSION: 1.19.2
+      CV_VERSION: 4.10.0
+      BIN_PKG_NAME: macos-bin
+
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Download ONNX Runtime
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          wget https://git.alikia2x.com/alikia2x/openrewind-assets/releases/download/${{ env.ASSETS_VERSION }}/onnxruntime-v${{ env.ONNX_VERSION }}-macos-13-x86_64-static.7z -O onnx.7z
+          7z x onnx.7z -aoa
+          rm onnx.7z
+
+      # Download OpenCV
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          wget https://git.alikia2x.com/alikia2x/openrewind-assets/releases/download/${{ env.ASSETS_VERSION }}/opencv-${{ env.CV_VERSION }}-macos-13-x86_64.7z -O cv.7z
+          7z x cv.7z -aoa
+          rm cv.7z
+
+      # Compile
+      - name: build
+        run: |
+          chmod a+x build-release.sh &&./build-release.sh
+
+      # Compress
+      - name: 7z
+        run: |
+          mkdir ${{ env.BIN_PKG_NAME }}
+          cp Darwin-CPU-BIN/install/bin/RapidOcrOnnx ${{ env.BIN_PKG_NAME }}/macos-x86
+
+      # Upload Artifacts
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-x86
+          path: ${{ env.BIN_PKG_NAME }}/macos-x86
+
+      # Create Release
+      # https://github.com/marketplace/actions/create-release
+      - name: Create release and upload-archive
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: false
+          name: macOS Intel
+          body: "Release version ${{ env.RELEASE_VERSION }} of RapidOCR-ONNX for macOS Intel devices."
+          artifacts: macos-x86
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
