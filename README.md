@@ -1,184 +1,167 @@
-# RapidOcrOnnx
+# RapidOCR-ONNX
 
-### 联系方式
+## Project Introduction
 
-- QQ1群：~887298230~ 已满，
-- QQ2群：~755960114~ 已满，
-- QQ3群：450338158
-- QQ4群：419196348
+RapidOCR-ONNX is an efficient Optical Character Recognition (OCR) tool that runs [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) based on [ONNX-Runtime](https://github.com/microsoft/onnxruntime/). This project aims to achieve cross-platform efficient inference and provides output in JSON format for easy integration and processing by other programs.
 
-### Project下载
+## Features
 
-* 整合好源码和依赖库的完整工程项目，可以在Release中下载(github)
-* 可到Q群共享内下载，以Project开头的压缩包文件为源码工程，例：Project_RapidOcrOnnx-版本号.7z
-* 如果想自己折腾，则请继续阅读本说明
+- Efficient OCR inference using ONNX-Runtime.
+- Supports multiple platforms to ensure broad compatibility.
+- Outputs results in JSON format, making it easy to integrate and use.
 
-### Demo下载(win、mac、linux)
+## Build
 
-* 编译好的demo，可以在release中下载，或者Q群共享内下载
-* 各平台可执行文件：linux-bin.7z、macos-bin.7z、windows-bin.7z
-* 用于java的jni库：linux-jni.7z、macos-jni.7z、windows-jni.7z
-* 用于C的动态库：linux-clib.7z、macos-clib.7z、windows-clib.7z
-* C动态库调用范例:[RapidOcrOnnxLibTest](https://github.com/RapidAI/RapidOcrOnnxLibTest)
-* 注意：linux编译平台为ubuntu18.04，如果你的linux版本无法运行demo，请自行从源码编译依赖库和完整项目。
+We have tested the build on macOS.
+Build instructions for Windows and Linux will be available soon.
 
-### 介绍
+You can also go to the release page to download the executable files we built. Currently, Release is also only available for macOS.
 
-请查看项目主仓库：https://github.com/RapidAI/RapidOCR
+### Preparations
 
-这个项目使用onnxruntime框架进行推理
+First, download the pre-built versions of ONNX Runtime and OpenCV from [our Gitea repository](https://git.alikia2x.com/alikia2x/openrewind-assets/releases).
 
-采用onnxruntime框架[https://github.com/microsoft/onnxruntime](https://github.com/microsoft/onnxruntime)
+For backup purposes, you can also download them from the following GitHub repositories:
 
-### 更新说明
+- [OpenCVBuilder](https://github.com/RapidAI/OpenCVBuilder/releases)  
+- [ONNX Runtime Builder](https://github.com/RapidAI/OnnxruntimeBuilder/releases)
 
-#### 代码贡献者
-* configuration parameters for the number of IntraOp threads by https://github.com/Gmgge
-* 支持传入bitmap和image的二进制数据 by https://github.com/MyMonsterCat
-* Enhance ONNX Runtime GPU inference performance by https://github.com/Tryanks
-* Added DirectML GPU support by https://github.com/airchaoz
+Please note that the compilation results provided by the ONNX Runtime Builder repository may have an incorrect directory structure. You can refer to the files available in our Gitea repository to make the necessary corrections.
 
-#### 2022-10-15 update v1.1.1
+After downloading, place the unzipped folder (named "macos") into the corresponding directories in the project root: `onnxruntime-static` and `opencv-static`.
 
-* opencv 4.6.0
-* onnxruntime 1.12.1
-* windows支持mt版引用库
-* rec模型输入图片高度改为48
+### Build on macOS
 
-#### 2022-10-16 update v1.1.2
-
-* 修复：字典添加空格
-
-#### 2022-10-17 update v1.1.3
-
-* 修复：scoreToTextLine方法索引越界问题
-* Windows控制台编码修改为UTF8
-
-#### 2022-10-20 update v1.2.0
-
-* 再次修复空格问题
-* 增加GPU(cuda)支持，需要自行下载整合依赖库
-* windows下的free()方法更焕为_aligned_free()
-* 修改默认输入参数
-* 修改benchmark输出样式
-
-#### 2022-10-28 update v1.2.1
-
-* 适配onnxruntime 1.13.1
-* 修了些warning
-
-#### 2023-02-13 update v1.2.2
-
-* 适配onnxruntime 1.14.0
-
-#### 2024-01-07 update v1.2.3
-
-* onnxruntime 1.15.1
-* opencv 4.8.1
-
-### 模型下载
-
-整合好的范例工程自带了模型，在models文件夹中
-
-```
-RapidOcrOnnx/models
-    ├── ch_PP-OCRv3_det_infer.onnx
-    ├── ch_PP-OCRv3_rec_infer.onnx
-    ├── ch_ppocr_mobile_v2.0_cls_infer.onnx
-    └── ppocr_keys_v1.txt
+```bash
+chmod +x build.sh
+./build.sh
 ```
 
-### [编译说明](./BUILD.md)
+Tap Enter twice, you'll get the results in `Darwin-CPU-BIN`.
 
-### [GPU版附加说明](./onnxruntime-gpu/README.md)
+## Usage
 
-### 测试说明
+Run the following command in the command line to use RapidOCR-ONNX:
 
-1. 根据系统下载对应的程序包linux-bin.7z、macos-bin.7z、windows-bin.7z，并解压.
-2. 把上面的模型下载，解压到第一步解压的文件夹里.
-3. 终端运行run-test.sh或命令行运行run-test.bat，查看识别结果.
-4. 终端运行run-benchmark.sh或命令行运行run-benchmark.bat，查看识别过程平均耗时.
-
-### FAQ
-
-#### windows10下bat执行错误
-
-- 在win、linux、mac系统下，文本文件使用不同的换行符格式，win是CRLF，linux是LF，mac是CR
-- github的"Download ZIP"按钮下载的整个仓库代码，默认格式是UNIX换行符，此时bat脚本在windows平台执行会出错
-- 解决方法1：从Release中下载完整工程压缩包
-- 解决方法2：使用git clone命令同步仓库代码，git可以自动转换文件格式
-- 解决方法3：使用UltraEdit等文本编辑器，把bat文件的换行符转成win格式
-
-#### windows静态链接msvc
-
-- 作用:静态链接CRT(mt)可以让编译出来的包，部署时不需要安装c++运行时，但会增大包体积；
-- 需要mt版的引用库，参考编译说明，下载mt版的库；
-
-#### windows提示缺少"VCRUNTIME140_1.dll"
-
-下载安装适用于 Visual Studio 2015、2017 和 2019 的 Microsoft Visual C++ 可再发行软件包
-[下载地址](https://support.microsoft.com/zh-cn/help/2977003/the-latest-supported-visual-c-downloads)
-
-#### Windows7执行错误|中文乱码
-
-1. cmd窗口左上角-属性
-2. 字体选项卡-选择除了“点阵字体”以外的TrueType字体,例如:Lucida Console、宋体
-3. 重新执行bat
-
-### Windows调试运行
-
-* 下载范例项目工程自带的引用库是Release版，不能用于调试运行
-* debug版的引用库未压缩时容量超过1GB，极限压缩后也超过了100MB，请自行编译或到群共享里寻找
-* debug版的引用库必须是md版
-* 把debug版的引用库替换到范例工程的对应文件夹
-* 双击generate-vs-project.bat，选择2)Debug，生成对应的build-win-vsxxx-xx文件夹
-* 进入生成的文件夹，打开RapidOcrOnnx.sln
-* 右边解决方案管理器，选中RapidOcrOnnx，右键->设为启动项目，并生成(查看输出log，确保生成成功)
-* 如果引用库是dll，需要把对应的dll文件，例onnxruntime.dll复制到build-win-vsxxx-xx文件夹\Debug，跟上一步生成的RapidOcrOnnx.exe放在一起
-* 右边解决方案管理器，选中RapidOcrOnnx，右键->属性->调试->
-  命令参数->```--models ../models --det ch_PP-OCRv3_det_infer.onnx --cls ch_ppocr_mobile_v2.0_cls_infer.onnx --rec ch_PP-OCRv3_rec_infer.onnx --keys ppocr_keys_v1.txt --image ../images/1.jpg```
-* 工具栏，点击绿色三角号启动"本地Windows调试器"
-* 第一次运行的话，查看左下角，等待加载各dll符号，网络不好的话，要等挺久的
-
-### 输入参数说明
-
-* 请参考main.h中的命令行参数说明。
-* 每个参数有一个短参数名和一个长参数名，用短的或长的均可。
-
-1. ```-d或--models```：模型所在文件夹路径，可以相对路径也可以绝对路径。
-2. ```-1或--det```:det模型文件名(含扩展名)
-3. ```-2或--cls```:cls模型文件名(含扩展名)
-4. ```-3或--rec```:rec模型文件名(含扩展名)
-5. ```-4或--keys```:keys.txt文件名(含扩展名)
-6. ```-i或--image```：目标图片路径，可以相对路径也可以绝对路径。
-7. ```-t或--numThread```：线程数量。
-8. ```-p或--padding```：图像预处理，在图片外周添加白边，用于提升识别率，文字框没有正确框住所有文字时，增加此值。
-9. ```-s或--maxSideLen```
-   ：按图片最长边的长度，此值为0代表不缩放，例：1024，如果图片长边大于1024则把图像整体缩小到1024再进行图像分割计算，如果图片长边小于1024则不缩放，如果图片长边小于32，则缩放到32。
-10. ```-b或--boxScoreThresh```：文字框置信度门限，文字框没有正确框住所有文字时，减小此值。
-11. ```-o或--boxThresh```：请自行试验。
-12. ```-u或--unClipRatio```：单个文字框大小倍率，越大时单个文字框越大。此项与图片的大小相关，越大的图片此值应该越大。
-13. ```-a或--doAngle```：启用(1)/禁用(0) 文字方向检测，只有图片倒置的情况下(旋转90~270度的图片)，才需要启用文字方向检测。
-14. ```-A或--mostAngle```：启用(1)/禁用(0) 角度投票(整张图片以最大可能文字方向来识别)，当禁用文字方向检测时，此项也不起作用。
-15. ```-h或--help```：打印命令行帮助。
-
-### 关于内存泄漏与valgrind
-
-* 项目根目录的valgrind-memcheck.sh用来检查内存泄漏(需要debug编译)。
-* 常见的并行库有tbb，hpx，openmp，gcd，concurrency，pthread
-* 并行库的种类可以看：https://docs.opencv.org/4.x/db/d05/tutorial_config_reference.html
-* 测试了openmp和pthread，目前已知这类并行库会导致检查报告中出现"possibly lost"
-* opencv只做简单的图像预处理，可以完全不使用任何并行库，但需要定制编译
-* onnxruntime1.6.0或之前，默认引用openmp，从1.7.0开始默认关闭openmp并使用自带的ThreadPool代码
-* 阅读报告可以看出"possibly lost"发生位置均在引用的第三方库(如果使用了并行库的话)，如opencv或onnxruntime
-* "possibly lost"不一定是内存泄露
-* 如果opencv想定制编译不使用任何并行库，可以使用以下参数进行编译
-
+```bash
+./RapidOcrOnnx (-d --models) (-1 --det) (-2 --cls) (-3 --rec) (-4 --keys) (-i --image)
+[-t --numThread] [-p --padding] [-s --maxSideLen]
+[-b --boxScoreThresh] [-B --boxThresh] [-u --unClipRatio]
+[-a --doAngle] [-A --mostAngle] [-G --GPU] [-o --output]
 ```
--DWITH_TBB=OFF
--DWITH_HPX=OFF
--DWITH_OPENMP=OFF
--DWITH_GCD=OFF
--DWITH_CONCURRENCY=OFF
--DWITH_PTHREADS_PF=OFF
+
+### Required Parameters
+- `-d --models`: Model directory.
+- `-1 --det`: Detection model filename.
+- `-2 --cls`: Classification model filename.
+- `-3 --rec`: Recognition model filename.
+- `-4 --keys`: Key filename.
+- `-i --image`: Path to the target image.
+- `-o --output`: Path for the output results in JSON format.
+
+### Optional Parameters
+- `-t --numThread`: Number of threads (integer), default: 4.
+- `-p --padding`: Padding value (integer), default: 50.
+- `-s --maxSideLen`: Maximum side length of the image (integer), default: 1024.
+- `-b --boxScoreThresh`: Box score threshold (float), default: 0.5.
+- `-B --boxThresh`: Box threshold (float), default: 0.3.
+- `-u --unClipRatio`: Unclipping ratio (float), default: 1.6.
+- `-a --doAngle`: Enable (1) / Disable (0) angle network, default: enabled.
+- `-A --mostAngle`: Enable (1) / Disable (0) most likely angle index, default: enabled.
+- `-G --GPU`: Disable (-1) / GPU0 (0) / GPU1 (1) / ... Use Vulkan GPU acceleration, default: disabled (-1).
+
+### Other Parameters
+- `-v --version`: Display version information.
+- `-h --help`: Print help information.
+
+## Examples
+Here are example commands for using RapidOCR-ONNX:
+
+```bash
+# Example 1
+./RapidOcrOnnx --models models --det det.onnx --cls cls.onnx --rec rec.onnx --keys keys.txt --image 1.jpg --GPU 0 --output 1.json
+
+# Example 2
+./RapidOcrOnnx -d models -1 det.onnx -2 cls.onnx -3 rec.onnx -4 keys.txt -i 1.jpg -t 4 -p 50 -s 0 -b 0.6 -B 0.3 -u 2.0 -a 1 -A 1 -G 0 -o 1.json
 ```
+
+## Output Format
+The output will be
+ returned in JSON format, as shown below:
+
+```json
+{
+  "input_params": {
+    "threads": 1,
+    "padding": 50,
+    "longest_side": 1024,
+    "box_score_threshold": 0.5,
+    "box_threshold": 0.3,
+    "detect_orientation": 1,
+    "auto_rotate": 1,
+    "GPU": -1
+  },
+  "scale_params": {
+    "original_width": 3520,
+    "original_height": 2324,
+    "target_width": 1120,
+    "target_height": 736
+  },
+  "detection_result": {
+    "bounding_boxes": {
+      "elapsed_time": 0.187204,
+      "result": [
+        {
+          "score": 0.596514,
+          "top_left": { "x": 74, "y": 66 },
+          "bottom_right": { "x": 283, "y": 113 }
+        },
+        {
+          "score": 0.621396,
+          "top_left": { "x": 839, "y": 66 },
+          "bottom_right": { "x": 1298, "y": 116 }
+        }
+      ]
+    },
+    "text_orientation": {
+      "result": [
+        {
+          "index": 0,
+          "score": 0.999959
+        },
+        {
+          "index": 0,
+          "score": 0.993791
+        }
+      ],
+      "elapsed_time": 0.038303
+    },
+    "text_recognition": {
+      "result": [
+        {
+          "text": "Text",
+          "char_scores": [0.057412, 0.986533, 0.999718, 0.71237]
+        },
+        {
+          "text": "你好",
+          "char_scores": [0.98043, 0.996933]
+        }
+      ],
+      "elapsed_time": 0.038303
+    }
+  },
+  "total_elapsed_time": 0.973727,
+  "text": "Text\n你好"
+}
+```
+
+## Contribution
+Contributions of any form are welcome! If you find any bugs or have suggestions for improvements, please submit an issue or a pull request.
+
+## License
+This project is licensed under the Apache 2.0 License. For more details, please refer to the LICENSE file.
+
+## Contact
+For more information or support, please contact the project maintainer or submit an issue on GitHub.
+
+Thank you for using RapidOCR-ONNX! We hope this tool helps you efficiently perform optical character recognition.

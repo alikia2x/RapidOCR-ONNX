@@ -218,7 +218,9 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
     Logger("    \"text_orientation\": {\n");
     Logger("      \"result\": [\n");
     std::vector<Angle> angles;
+    double start = getCurrentTime();
     angles = angleNet.getAngles(partImages, path, imgName, doAngle, mostAngle);
+    double end = getCurrentTime();
     float totalOrientationTime = 0.0f;
     for (size_t i = 0; i < angles.size(); ++i) {
         std::string tailComma = (i == textBoxes.size() - 1) ? "\n" : ",\n";
@@ -229,7 +231,7 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
         totalOrientationTime += angles[i].time;
     }
     Logger("      ],\n");
-    Logger("      \"elapsed_time\": %f\n", totalOrientationTime/1000);
+    Logger("      \"elapsed_time\": %f\n", (end-start)/1000);
     Logger("    },\n");
 
     //Rotate partImgs
@@ -241,7 +243,9 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
 
     Logger("    \"text_recognition\": {\n");
     Logger("      \"result\": [\n");
+    start = getCurrentTime();
     std::vector<TextLine> textLines = crnnNet.getTextLines(partImages, path, imgName);
+    end = getCurrentTime();
 
     for (size_t i = 0; i < textLines.size(); ++i) {
         std::string tailComma = (i == textLines.size() - 1) ? "\n" : ",\n";
@@ -258,7 +262,7 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
         Logger("        }%s", tailComma.c_str());
     }
     Logger("      ],\n");
-    Logger("      \"elapsed_time\": %f\n", totalOrientationTime/1000);
+    Logger("      \"elapsed_time\": %f\n", (end-start)/1000);
     Logger("    }\n");
 
     std::vector<TextBlock> textBlocks;

@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-13
 
     env:
-      RELEASE_VERSION: 1.0.0
+      RELEASE_VERSION: 1.0.1
       ASSETS_VERSION: 1.0.0
       ONNX_VERSION: 1.19.2
       CV_VERSION: 4.10.0
@@ -61,7 +61,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           prerelease: false
-          name: macOS Intel
+          name: "V${{ env.RELEASE_VERSION }}: for macOS"
           body: "Release version ${{ env.RELEASE_VERSION }} of RapidOCR-ONNX for macOS Intel devices."
           artifacts: "macos-bin/*"
           allowUpdates: true

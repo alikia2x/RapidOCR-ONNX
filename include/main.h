@@ -29,14 +29,15 @@ static const struct option long_options[] = {
 const char *usageMsg = "(-d --models) (-1 --det) (-2 --cls) (-3 --rec) (-4 --keys) (-i --image)\n"\
                        "[-t --numThread] [-p --padding] [-s --maxSideLen]\n" \
                        "[-b --boxScoreThresh] [-B --boxThresh] [-u --unClipRatio]\n" \
-                       "[-a --noAngle] [-A --mostAngle] [-G --GPU]\n\n";
+                       "[-a --noAngle] [-A --mostAngle] [-G --GPU] [-o --output]\n\n";
 
 const char *requiredMsg = "-d --models: models directory.\n" \
                           "-1 --det: model file name of det.\n" \
                           "-2 --cls: model file name of cls.\n" \
                           "-3 --rec: model file name of rec.\n" \
 						  "-4 --keys: keys file name.\n" \
-                          "-i --image: path of target image.\n\n";
+                          "-i --image: path of target image.\n"\
+                          "-o --output: path of output result, in JSON format.\n\n";
 
 const char *optionalMsg = "-t --numThread: value of numThread(int), default: 4\n" \
                           "-p --padding: value of padding(int), default: 50\n" \
@@ -51,7 +52,7 @@ const char *optionalMsg = "-t --numThread: value of numThread(int), default: 4\n
 const char *otherMsg = "-v --version: show version\n" \
                        "-h --help: print this help\n\n";
 
-const char *example1Msg = "Example1: %s --models models --det det.onnx --cls cls.onnx --rec rec.onnx --keys keys.txt --image 1.jpg  --GPU 0\n";
-const char *example2Msg = "Example2: %s -d models -1 det.onnx -2 cls.onnx -3 rec.onnx -4 keys.txt -i 1.jpg -t 4 -p 50 -s 0 -b 0.6 -B 0.3 -u 2.0 -a 1 -A 1 -G 0\n";
+const char *example1Msg = "Example1: %s --models models --det det.onnx --cls cls.onnx --rec rec.onnx --keys keys.txt --image 1.jpg  --GPU 0 --output 1.json\n";
+const char *example2Msg = "Example2: %s -d models -1 det.onnx -2 cls.onnx -3 rec.onnx -4 keys.txt -i 1.jpg -t 4 -p 50 -s 0 -b 0.6 -B 0.3 -u 2.0 -a 1 -A 1 -G 0 -o 1.json\n";
 
 #endif //__MAIN_H__
