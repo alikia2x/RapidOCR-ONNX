@@ -93,7 +93,7 @@ jobs:
       - name: download opencv-static
         run: |
           cd opencv-static
-          wget https://git.alikia2x.com/alikia2x/openrewind-assets/releases/download/${{ env.ASSETS_VERSION }}/opencv-${{ env.CV_VERSION }}-macos-14-arm64.7z -O cv.7z
+          wget https://git.alikia2x.com/alikia2x/openrewind-assets/releases/download/${{ env.ASSETS_VERSION }}/opencv-${{ env.CV_VERSION }}-macos-14-arm64-static.7z -O cv.7z
           7z x cv.7z -aoa
           rm cv.7z
 
