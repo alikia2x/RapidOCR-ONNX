@@ -150,3 +150,8 @@ opencv-static/*
 !/opencv-static/OpenCVWrapperConfig.cmake
 opencv-shared/
 /images/*-result.*
+
+#builds
+Darwin-CPU-BIN
+Darwin--BIN
+Darwin-CPU-

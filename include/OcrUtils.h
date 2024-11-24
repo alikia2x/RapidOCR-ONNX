@@ -93,4 +93,20 @@ std::string getResultImgFilePath(const char *path, const char *imgName);
 
 std::string getDebugImgFilePath(const char *path, const char *imgName, size_t i, const char *tag);
 
+/**
+ * Escapes special characters in a string to make it safe for inclusion in a JSON string.
+ *
+ * @param input The input string to be escaped.
+ * @return The escaped string.
+ */
+std::string escapeJsonString(const std::string &input);
+
+/**
+ * Escapes special characters in a C-style string to make it safe for inclusion in a JSON string.
+ *
+ * @param input The input C-style string to be escaped.
+ * @return The escaped string.
+ */
+std::string escapeJsonString(const char *input);
+
 #endif //__OCR_UTILS_H__

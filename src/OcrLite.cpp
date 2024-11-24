@@ -17,8 +17,8 @@ void OcrLite::initLogger(bool isConsole, bool isPartImg, bool isResultImg) {
     pImpl->initLogger(isConsole, isPartImg, isResultImg);
 }
 
-void OcrLite::enableResultTxt(const char *path, const char *imgName) {
-    pImpl->enableResultTxt(path, imgName);
+void OcrLite::enableResultTxt(std::string path) {
+    pImpl->enableResultTxt(path);
 }
 
 void OcrLite::setGpuIndex(int gpuIndex) {

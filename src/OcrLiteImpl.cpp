@@ -25,11 +25,10 @@ void OcrLiteImpl::initLogger(bool isConsole, bool isPartImg, bool isResultImg) {
     isOutputResultImg = isResultImg;
 }
 
-void OcrLiteImpl::enableResultTxt(const char *path, const char *imgName) {
+void OcrLiteImpl::enableResultTxt(std::string path) {
     isOutputResultTxt = true;
-    std::string resultTxtPath = getResultTxtFilePath(path, imgName);
-    printf("resultTxtPath(%s)\n", resultTxtPath.c_str());
-    resultTxt = fopen(resultTxtPath.c_str(), "w");
+    //printf("resultTxtPath(%s)\n", resultTxtPath.c_str());
+    resultTxt = fopen(path.c_str(), "w");
 }
 
 void OcrLiteImpl::setGpuIndex(int gpuIndex) {
@@ -40,17 +39,17 @@ void OcrLiteImpl::setGpuIndex(int gpuIndex) {
 
 bool OcrLiteImpl::initModels(const std::string &detPath, const std::string &clsPath,
                          const std::string &recPath, const std::string &keysPath) {
-    Logger("=====Init Models=====\n");
-    Logger("--- Init DbNet ---\n");
+    // Logger("=====Init Models=====\n");
+    // Logger("--- Init DbNet ---\n");
     dbNet.initModel(detPath);
 
-    Logger("--- Init AngleNet ---\n");
+    //Logger("--- Init AngleNet ---\n");
     angleNet.initModel(clsPath);
 
-    Logger("--- Init CrnnNet ---\n");
+    //Logger("--- Init CrnnNet ---\n");
     crnnNet.initModel(recPath, keysPath);
 
-    Logger("Init Models Success!\n");
+    //Logger("Init Models Success!\n");
     return true;
 }
 
@@ -167,41 +166,71 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
     cv::Mat textBoxPaddingImg = src.clone();
     int thickness = getThickness(src);
 
-    Logger("=====Start detect=====\n");
-    Logger("ScaleParam(sw:%d,sh:%d,dw:%d,dh:%d,%f,%f)\n", scale.srcWidth, scale.srcHeight,
-           scale.dstWidth, scale.dstHeight,
-           scale.ratioWidth, scale.ratioHeight);
-
-    Logger("---------- step: dbNet getTextBoxes ----------\n");
+    Logger("  \"scale_params\": {\n");
+    Logger("    \"original_width\": %d,\n", scale.srcWidth);
+    Logger("    \"original_height\": %d,\n", scale.srcHeight);
+    Logger("    \"target_width\": %d,\n", scale.dstWidth);
+    Logger("    \"target_height\": %d,\n", scale.dstHeight);
+    Logger("    \"width_ratio\": %f,\n", scale.ratioWidth);
+    Logger("    \"height_ratio\": %f\n", scale.ratioHeight);
+    Logger("  },\n");
+    Logger("  \"detection_result\": {\n");
+    Logger("    \"bounding_boxes\": {\n");
     double startTime = getCurrentTime();
     std::vector<TextBox> textBoxes = dbNet.getTextBoxes(src, scale, boxScoreThresh, boxThresh, unClipRatio);
     double endDbNetTime = getCurrentTime();
     double dbNetTime = endDbNetTime - startTime;
-    Logger("dbNetTime(%fms)\n", dbNetTime);
+    Logger("      \"elapsed_time\": %f,\n", dbNetTime/1000);
+    Logger("      \"result\": [\n");
 
     for (size_t i = 0; i < textBoxes.size(); ++i) {
-        Logger("TextBox[%d](+padding)[score(%f),[x: %d, y: %d], [x: %d, y: %d], [x: %d, y: %d], [x: %d, y: %d]]\n", i,
-               textBoxes[i].score,
-               textBoxes[i].boxPoint[0].x, textBoxes[i].boxPoint[0].y,
-               textBoxes[i].boxPoint[1].x, textBoxes[i].boxPoint[1].y,
-               textBoxes[i].boxPoint[2].x, textBoxes[i].boxPoint[2].y,
-               textBoxes[i].boxPoint[3].x, textBoxes[i].boxPoint[3].y);
+        std::string tailComma = (i == textBoxes.size() - 1) ? "\n" : ",\n";
+        Logger("        {\n");
+        Logger("          \"score\": %f,\n", textBoxes[i].score);
+        Logger("          \"top_left\": {\n", textBoxes[i].score);
+        Logger("            \"x\": %d,\n", textBoxes[i].boxPoint[0].x);
+        Logger("            \"y\": %d\n", textBoxes[i].boxPoint[0].y);
+        Logger("          },\n");
+        Logger("          \"top_right\": {\n");
+        Logger("            \"x\": %d,\n", textBoxes[i].boxPoint[1].x);
+        Logger("            \"y\": %d\n", textBoxes[i].boxPoint[1].y);
+        Logger("          },\n");
+        Logger("          \"bottom_right\": {\n");
+        Logger("            \"x\": %d,\n", textBoxes[i].boxPoint[2].x);
+        Logger("            \"y\": %d\n", textBoxes[i].boxPoint[2].y);
+        Logger("          },\n");
+        Logger("          \"bottom_left\": {\n");
+        Logger("            \"x\": %d,\n", textBoxes[i].boxPoint[3].x);
+        Logger("            \"y\": %d\n", textBoxes[i].boxPoint[3].y);
+        Logger("          }\n");
+        Logger("        }%s",tailComma.c_str());
     }
+    Logger("      ]\n");
+    Logger("    },\n");
 
-    Logger("---------- step: drawTextBoxes ----------\n");
-    drawTextBoxes(textBoxPaddingImg, textBoxes, thickness);
+    // Logger("---------- step: drawTextBoxes ----------\n");
+    //drawTextBoxes(textBoxPaddingImg, textBoxes, thickness);
 
     //---------- getPartImages ----------
     std::vector<cv::Mat> partImages = getPartImages(src, textBoxes, path, imgName);
 
-    Logger("---------- step: angleNet getAngles ----------\n");
+    //Logger("---------- step: angleNet getAngles ----------\n");
+    Logger("    \"text_orientation\": {\n");
+    Logger("      \"result\": [\n");
     std::vector<Angle> angles;
     angles = angleNet.getAngles(partImages, path, imgName, doAngle, mostAngle);
-
-    //Log Angles
+    float totalOrientationTime = 0.0f;
     for (size_t i = 0; i < angles.size(); ++i) {
-        Logger("angle[%d][index(%d), score(%f), time(%fms)]\n", i, angles[i].index, angles[i].score, angles[i].time);
+        std::string tailComma = (i == textBoxes.size() - 1) ? "\n" : ",\n";
+        Logger("        {\n");
+        Logger("          \"index\": %d,\n", angles[i].index);
+        Logger("          \"score\": %f\n", angles[i].score);
+        Logger("        }%s", tailComma.c_str());
+        totalOrientationTime += angles[i].time;
     }
+    Logger("      ],\n");
+    Logger("      \"elapsed_time\": %f\n", totalOrientationTime/1000);
+    Logger("    },\n");
 
     //Rotate partImgs
     for (size_t i = 0; i < partImages.size(); ++i) {
@@ -210,22 +239,27 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
         }
     }
 
-    Logger("---------- step: crnnNet getTextLine ----------\n");
+    Logger("    \"text_recognition\": {\n");
+    Logger("      \"result\": [\n");
     std::vector<TextLine> textLines = crnnNet.getTextLines(partImages, path, imgName);
-    //Log TextLines
+
     for (size_t i = 0; i < textLines.size(); ++i) {
-        Logger("textLine[%d](%s)\n", i, textLines[i].text.c_str());
-        std::ostringstream txtScores;
+        std::string tailComma = (i == textLines.size() - 1) ? "\n" : ",\n";
+        Logger("        {\n");
+        Logger("          \"text\": \"%s\",\n", escapeJsonString(textLines[i].text.c_str()).c_str());
+        Logger("          \"char_scores\": [");
         for (size_t s = 0; s < textLines[i].charScores.size(); ++s) {
-            if (s == 0) {
-                txtScores << textLines[i].charScores[s];
-            } else {
-                txtScores << " ," << textLines[i].charScores[s];
+            if (s > 0) {
+                Logger(", ");
             }
+            Logger("%f", textLines[i].charScores[s]);
         }
-        Logger("textScores[%d]{%s}\n", i, std::string(txtScores.str()).c_str());
-        Logger("crnnTime[%d](%fms)\n", i, textLines[i].time);
+        Logger("]\n");
+        Logger("        }%s", tailComma.c_str());
     }
+    Logger("      ],\n");
+    Logger("      \"elapsed_time\": %f\n", totalOrientationTime/1000);
+    Logger("    }\n");
 
     std::vector<TextBlock> textBlocks;
     for (size_t i = 0; i < textLines.size(); ++i) {
@@ -243,8 +277,9 @@ OcrResult OcrLiteImpl::detect(const char *path, const char *imgName,
 
     double endTime = getCurrentTime();
     double fullTime = endTime - startTime;
-    Logger("=====End detect=====\n");
-    Logger("FullDetectTime(%fms)\n", fullTime);
+    Logger("  },\n");
+    Logger("  \"total_elapsed_time\": %f,\n", fullTime/1000);
+    
 
     //cropped to original size
     cv::Mat textBoxImg;

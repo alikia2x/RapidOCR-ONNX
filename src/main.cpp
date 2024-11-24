@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     SetConsoleOutputCP(CP_UTF8);
 #endif
     std::string modelsDir, modelDetPath, modelClsPath, modelRecPath, keysPath;
-    std::string imgPath, imgDir, imgName;
+    std::string imgPath, imgDir, imgName, outputPath;
     int numThread = 4;
     int padding = 50;
     int maxSideLen = 1024;
@@ -52,29 +52,29 @@ int main(int argc, char **argv) {
         switch (opt) {
             case 'd':
                 modelsDir = optarg;
-                printf("modelsPath=%s\n", modelsDir.c_str());
+                //printf("modelsPath=%s\n", modelsDir.c_str());
                 break;
             case '1':
                 modelDetPath = modelsDir + "/" + optarg;
-                printf("model det path=%s\n", modelDetPath.c_str());
+                //printf("model det path=%s\n", modelDetPath.c_str());
                 break;
             case '2':
                 modelClsPath = modelsDir + "/" + optarg;
-                printf("model cls path=%s\n", modelClsPath.c_str());
+                //printf("model cls path=%s\n", modelClsPath.c_str());
                 break;
             case '3':
                 modelRecPath = modelsDir + "/" + optarg;
-                printf("model rec path=%s\n", modelRecPath.c_str());
+                //printf("model rec path=%s\n", modelRecPath.c_str());
                 break;
             case '4':
                 keysPath = modelsDir + "/" + optarg;
-                printf("keys path=%s\n", keysPath.c_str());
+                //printf("keys path=%s\n", keysPath.c_str());
                 break;
             case 'i':
                 imgPath.assign(optarg);
                 imgDir.assign(imgPath.substr(0, imgPath.find_last_of('/') + 1));
                 imgName.assign(imgPath.substr(imgPath.find_last_of('/') + 1));
-                printf("imgDir=%s, imgName=%s\n", imgDir.c_str(), imgName.c_str());
+                //printf("imgDir=%s, imgName=%s\n", imgDir.c_str(), imgName.c_str());
                 break;
             case 't':
                 numThread = (int) strtol(optarg, NULL, 10);
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
                 boxScoreThresh = strtof(optarg, NULL);
                 //printf("boxScoreThresh=%f\n", boxScoreThresh);
                 break;
-            case 'o':
+            case 'B':
                 boxThresh = strtof(optarg, NULL);
                 //printf("boxThresh=%f\n", boxThresh);
                 break;
@@ -126,6 +126,9 @@ int main(int argc, char **argv) {
                 return 0;
             case 'G':
                 flagGpu = (int) strtol(optarg, NULL, 10);
+                break;
+            case 'o':
+                outputPath.assign(optarg);
                 break;
             default:
                 printf("other option %c :%s\n", opt, optarg);
@@ -161,21 +164,33 @@ int main(int argc, char **argv) {
     ocrLite.initLogger(
             true,//isOutputConsole
             false,//isOutputPartImg
-            true);//isOutputResultImg
-
-    ocrLite.enableResultTxt(imgDir.c_str(), imgName.c_str());
+            false);//isOutputResultImg
+    ocrLite.enableResultTxt(outputPath);
     ocrLite.setGpuIndex(flagGpu);
-    ocrLite.Logger("=====Input Params=====\n");
+    ocrLite.Logger("{\n");
+    ocrLite.Logger("  \"input_params\":{\n");
     ocrLite.Logger(
-            "numThread(%d),padding(%d),maxSideLen(%d),boxScoreThresh(%f),boxThresh(%f),unClipRatio(%f),doAngle(%d),mostAngle(%d),GPU(%d)\n",
-            numThread, padding, maxSideLen, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle,
-            flagGpu);
+        "    \"threads\": %d,\n"
+        "    \"padding\": %d,\n"
+        "    \"longest_side\": %d,\n"
+        "    \"box_score_threshold\": %f,\n"
+        "    \"box_threshold\": %f,\n"
+        "    \"clip_ratio\": %f,\n"
+        "    \"detect_orientation\": %d,\n"
+        "    \"auto_rotate\": %d,\n"
+        "    \"GPU\": %d\n",
+        numThread, padding, maxSideLen, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle,
+        flagGpu);
+
+    ocrLite.Logger("  },\n");
 
     ocrLite.initModels(modelDetPath, modelClsPath, modelRecPath, keysPath);
 
     OcrResult result = ocrLite.detect(imgDir.c_str(), imgName.c_str(), padding, maxSideLen,
                                       boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
-    ocrLite.Logger("%s\n", result.strRes.c_str());
+    std::string escapedStrRes = escapeJsonString(result.strRes);
+    ocrLite.Logger("  \"text\": \"%s\"\n", escapedStrRes.c_str());
+    ocrLite.Logger("}\n");
     return 0;
 }
 
