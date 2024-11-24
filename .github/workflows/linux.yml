@@ -16,14 +16,6 @@ jobs:
         arch_type:
           [
             aarch64-linux-musl,
-            mips64el-linux-musl,
-            mipsel-linux-musl,
-            mipsel-linux-musln32,
-            mipsel-linux-musln32sf,
-            mipsel-linux-muslsf,
-            riscv32-linux-musl,
-            riscv64-linux-musl,
-            sh2-linux-musl,
             x86_64-linux-musl,
             x86_64-linux-muslx32,
           ]
@@ -31,11 +23,11 @@ jobs:
     name: ${{ matrix.arch_type }}
 
     env:
-      TOOLCHAIN_VERSION: 20231224
-      ONNX_VERSION: 1.15.1
-      ONNX_PKG_NAME: onnxruntime-1.15.1-${{ matrix.arch_type }}-static
-      CV_VERSION: 4.8.1
-      CV_PKG_NAME: opencv-4.8.1-${{ matrix.arch_type }}
+      TOOLCHAIN_VERSION: 13.2.0
+      ONNX_VERSION: 1.19.2
+      ONNX_PKG_NAME: onnxruntime-1.19.2-${{ matrix.arch_type }}-static
+      CV_VERSION: 4.10.0
+      CV_PKG_NAME: opencv-4.10.0-${{ matrix.arch_type }}
       BIN_PKG_NAME: linux-bin-${{ matrix.arch_type }}
       CLIB_PKG_NAME: linux-clib-${{ matrix.arch_type }}
 
