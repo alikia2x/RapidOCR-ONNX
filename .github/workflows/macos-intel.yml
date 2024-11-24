@@ -63,6 +63,8 @@ jobs:
           prerelease: false
           name: macOS Intel
           body: "Release version ${{ env.RELEASE_VERSION }} of RapidOCR-ONNX for macOS Intel devices."
-          artifacts: macos-x86
+          artifacts: "macos-bin/*"
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.RELEASE_VERSION }}
+          artifactErrorsFailBuild: true
